@@ -1,0 +1,21 @@
+# .gqlgen.yml example
+#
+# Refer to https://gqlgen.com/config/
+# for detailed .gqlgen.yml documentation.
+
+schema:
+  - internal/graphql/schema.graphql
+exec:
+  filename: internal/graphql/generated.go
+  package: graphql
+resolver:
+  filename: internal/graphql/resolver.go
+  package: graphql
+  type: Resolver
+model:
+  filename: internal/graphql/models_gen.go
+  package: graphql
+models:
+  Todo:
+    model: github.com/hunter1271/todos/internal/database.Todo
+autobind: []
