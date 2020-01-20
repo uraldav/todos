@@ -5,7 +5,7 @@ package database
 import ()
 
 type Todo struct {
-	ID   int32  `json:"id"`
-	Text string `json:"text"`
-	Done bool   `json:"done"`
+	ID     int32  `json:"id"`
+	Text   string `json:"text"`
+	IsDone bool   `json:"is_done"`
 }

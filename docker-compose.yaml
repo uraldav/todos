@@ -13,13 +13,13 @@ services:
     ports:
       - 25432:5432
 
-  pgadmin:
-    image: dpage/pgadmin4
-    restart: always
-    networks:
-      - app-tier
-    environment:
-      PGADMIN_DEFAULT_EMAIL: admin@admin.dev
-      PGADMIN_DEFAULT_PASSWORD: 123456
-    ports:
-      - 8080:80
+#  pgadmin:
+#    image: dpage/pgadmin4
+#    restart: always
+#    networks:
+#      - app-tier
+#    environment:
+#      PGADMIN_DEFAULT_EMAIL: admin@admin.dev
+#      PGADMIN_DEFAULT_PASSWORD: 123456
+#    ports:
+#      - 8080:80

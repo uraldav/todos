@@ -5,9 +5,9 @@
       "name": "database",
       "emit_json_tags": true,
       "emit_prepared_queries": false,
-      "path": "./internal/database",
-      "queries": "./schema/queries/queries.sql",
-      "schema": "./schema/migrations/"
+      "path": "./database",
+      "queries": "./database/queries/queries.sql",
+      "schema": "./migrations/"
     }
   ]
 }

@@ -3,13 +3,13 @@ package graphql
 import (
 	"context"
 	"fmt"
-	"github.com/hunter1271/todos/internal/database"
+	"github.com/hunter1271/todos/database"
 	"strconv"
 )
 
 // THIS CODE IS A STARTING POINT ONLY. IT WILL NOT BE UPDATED WITH SCHEMA CHANGES.
 
-type Resolver struct{
+type Resolver struct {
 	queries *database.Queries
 }
 
@@ -35,33 +35,33 @@ func (r *mutationResolver) CreateTodo(ctx context.Context, input NewTodo) (*data
 	return &todo, err
 }
 
-func (r *mutationResolver) SetTodoDone(ctx context.Context, id *string, done *bool) (*database.Todo, error) {
-	intId, err := parseID(id)
+func (r *mutationResolver) UpdateTodoDone(ctx context.Context, id string, isDone bool) (*database.Todo, error) {
+	intId, err := parseID(&id)
 	if err != nil {
 		return nil, err
 	}
-	todo, err := r.queries.UpdateTodoDone(ctx, database.UpdateTodoDoneParams{ID: intId, Done: *done})
+	todo, err := r.queries.UpdateTodoDone(ctx, database.UpdateTodoDoneParams{ID: intId, IsDone: isDone})
+
+	return &todo, err
+}
+
+func (r *mutationResolver) DeleteTodo(ctx context.Context, id string) (*database.Todo, error) {
+	intId, err := parseID(&id)
+	if err != nil {
+		return nil, err
+	}
+	todo, err := r.queries.DeleteTodo(ctx, intId)
 
 	return &todo, err
 }
 
 type queryResolver struct{ *Resolver }
 
-func (r *queryResolver) Todo(ctx context.Context, id *string) (*database.Todo, error) {
-	intId, err := parseID(id)
-	if err != nil {
-		return nil, err
-	}
-	todo, err := r.queries.GetTodo(ctx, intId)
-
-	return &todo, err
-}
-
 func (r *queryResolver) Todos(ctx context.Context) ([]*database.Todo, error) {
 	todos, err := r.queries.ListTodos(ctx)
 	var list []*database.Todo
-	for _, todo := range todos {
-		list = append(list, &todo)
+	for key, _ := range todos {
+		list = append(list, &todos[key])
 	}
 
 	return list, err

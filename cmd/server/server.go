@@ -2,14 +2,14 @@ package main
 
 import (
 	"database/sql"
-	"github.com/hunter1271/todos/internal/database"
-	"github.com/hunter1271/todos/internal/graphql"
+	"github.com/99designs/gqlgen/handler"
+	"github.com/go-chi/chi"
+	"github.com/hunter1271/todos/database"
+	"github.com/hunter1271/todos/graphql"
 	_ "github.com/jackc/pgx/v4/stdlib"
+	"github.com/rs/cors"
 	"log"
 	"net/http"
-	"os"
-
-	"github.com/99designs/gqlgen/handler"
 )
 
 const defaultPort = "8888"
@@ -21,14 +21,18 @@ func main() {
 	}
 	queries := database.New(db)
 
-	port := os.Getenv("PORT")
-	if port == "" {
-		port = defaultPort
+	router := chi.NewRouter()
+	opts := cors.Options{
+		AllowedOrigins: []string{"*"},
+		Debug:          true,
 	}
+	router.Use(cors.New(opts).Handler)
+	router.Handle("/", handler.Playground("Todo list API", "/query"))
+	router.Handle("/query", handler.GraphQL(graphql.NewExecutableSchema(graphql.Config{Resolvers: graphql.NewResolver(queries)})))
 
-	http.Handle("/", handler.Playground("GraphQL playground", "/query"))
-	http.Handle("/query", handler.GraphQL(graphql.NewExecutableSchema(graphql.Config{Resolvers: graphql.NewResolver(queries)})))
-
-	log.Printf("connect to http://localhost:%s/ for GraphQL playground", port)
-	log.Fatal(http.ListenAndServe(":"+port, nil))
+	log.Printf("connect to http://localhost:%s/ for GraphQL playground", defaultPort)
+	err = http.ListenAndServe(":"+defaultPort, router)
+	if err != nil {
+		log.Panic(err)
+	}
 }

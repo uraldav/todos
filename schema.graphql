@@ -5,11 +5,10 @@
 type Todo {
   id: ID!
   text: String!
-  done: Boolean!
+  isDone: Boolean!
 }
 
 type Query {
-  todo(id: String): Todo!
   todos: [Todo!]!
 }
 
@@ -19,5 +18,6 @@ input NewTodo {
 
 type Mutation {
   createTodo(input: NewTodo!): Todo!
-  setTodoDone(id: String, done: Boolean): Todo!
+  updateTodoDone(id: ID!, isDone: Boolean!): Todo!
+  deleteTodo(id: ID!): Todo!
 }

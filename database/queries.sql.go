@@ -8,31 +8,33 @@ import (
 )
 
 const createTodo = `-- name: CreateTodo :one
-INSERT INTO todo (text) VALUES ($1) RETURNING id, text, done
+INSERT INTO todo (text)
+VALUES ($1) RETURNING id, text, is_done
 `
 
 func (q *Queries) CreateTodo(ctx context.Context, text string) (Todo, error) {
 	row := q.db.QueryRowContext(ctx, createTodo, text)
 	var i Todo
-	err := row.Scan(&i.ID, &i.Text, &i.Done)
+	err := row.Scan(&i.ID, &i.Text, &i.IsDone)
 	return i, err
 }
 
-const getTodo = `-- name: GetTodo :one
-SELECT id, text, done FROM todo
-WHERE id = $1 LIMIT 1
+const deleteTodo = `-- name: DeleteTodo :one
+DELETE FROM todo
+WHERE id = $1
+RETURNING id, text, is_done
 `
 
-func (q *Queries) GetTodo(ctx context.Context, id int32) (Todo, error) {
-	row := q.db.QueryRowContext(ctx, getTodo, id)
+func (q *Queries) DeleteTodo(ctx context.Context, id int32) (Todo, error) {
+	row := q.db.QueryRowContext(ctx, deleteTodo, id)
 	var i Todo
-	err := row.Scan(&i.ID, &i.Text, &i.Done)
+	err := row.Scan(&i.ID, &i.Text, &i.IsDone)
 	return i, err
 }
 
 const listTodos = `-- name: ListTodos :many
-SELECT id, text, done FROM todo
-ORDER BY done
+SELECT id, text, is_done FROM todo
+ORDER BY id
 `
 
 func (q *Queries) ListTodos(ctx context.Context) ([]Todo, error) {
@@ -44,7 +46,7 @@ func (q *Queries) ListTodos(ctx context.Context) ([]Todo, error) {
 	var items []Todo
 	for rows.Next() {
 		var i Todo
-		if err := rows.Scan(&i.ID, &i.Text, &i.Done); err != nil {
+		if err := rows.Scan(&i.ID, &i.Text, &i.IsDone); err != nil {
 			return nil, err
 		}
 		items = append(items, i)
@@ -60,19 +62,19 @@ func (q *Queries) ListTodos(ctx context.Context) ([]Todo, error) {
 
 const updateTodoDone = `-- name: UpdateTodoDone :one
 UPDATE todo
-SET done = $2
+SET is_done = $2
 WHERE id = $1
-RETURNING id, text, done
+RETURNING id, text, is_done
 `
 
 type UpdateTodoDoneParams struct {
-	ID   int32 `json:"id"`
-	Done bool  `json:"done"`
+	ID     int32 `json:"id"`
+	IsDone bool  `json:"is_done"`
 }
 
 func (q *Queries) UpdateTodoDone(ctx context.Context, arg UpdateTodoDoneParams) (Todo, error) {
-	row := q.db.QueryRowContext(ctx, updateTodoDone, arg.ID, arg.Done)
+	row := q.db.QueryRowContext(ctx, updateTodoDone, arg.ID, arg.IsDone)
 	var i Todo
-	err := row.Scan(&i.ID, &i.Text, &i.Done)
+	err := row.Scan(&i.ID, &i.Text, &i.IsDone)
 	return i, err
 }
